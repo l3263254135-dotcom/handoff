@@ -1,0 +1,23 @@
+{
+  "name": "handoff",
+  "version": "0.1.0",
+  "description": "Handoff plugin",
+  "author": {
+    "name": "Zeyu"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Handoff",
+    "shortDescription": "Save a compact handoff for a new AI session.",
+    "longDescription": "Write a verified, compact handoff file with decisions, Git anchors, open questions, and next steps for a new AI session.",
+    "developerName": "Zeyu",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Save a handoff file so a new AI session can resume this task.",
+    "websiteURL": "https://github.com/l3263254135-dotcom/handoff"
+  },
+  "homepage": "https://github.com/l3263254135-dotcom/handoff",
+  "repository": "https://github.com/l3263254135-dotcom/handoff",
+  "license": "MIT",
+  "keywords": ["handoff", "session", "context", "codex-plugin"]
+}
