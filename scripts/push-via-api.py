@@ -35,12 +35,21 @@ def main():
     owner, repo = sys.argv[1:3]
     base = f"repos/{owner}/{repo}/git"
     head = git("rev-parse", "HEAD")
+    bootstrapped = False
     try:
         remote = api("GET", f"{base}/ref/heads/main")["object"]["sha"]
     except subprocess.CalledProcessError as error:
         if b"HTTP 404" not in error.stderr and b"HTTP 409" not in error.stderr:
             raise
-        remote = None
+        if api("GET", f"repos/{owner}/{repo}")["size"] != 0:
+            raise SystemExit("Remote main is missing from a nonempty repository.")
+        readme = subprocess.check_output(["git", "show", "HEAD:README.md"])
+        api("PUT", f"repos/{owner}/{repo}/contents/README.md", {
+            "message": "chore: initialize repository for API publishing",
+            "content": base64.b64encode(readme).decode(), "branch": "main",
+        })
+        remote = api("GET", f"{base}/ref/heads/main")["object"]["sha"]
+        bootstrapped = True
 
     previous_local = git("config", "--get", "publish.last-local") if git_config_exists() else None
     previous_remote = git("config", "--get", "publish.last-remote") if previous_local else None
@@ -49,7 +58,9 @@ def main():
         raise SystemExit("Remote main changed since the last API publish; reconcile before publishing.")
     if remote and not anchor:
         raise SystemExit("Remote main must be reconciled before publishing.")
-    if anchor:
+    if bootstrapped:
+        commits = git("rev-list", "--reverse", head).splitlines()
+    elif anchor:
         run("git", "merge-base", "--is-ancestor", anchor, head)
         commits = git("rev-list", "--reverse", f"{anchor}..{head}").splitlines()
     else:
